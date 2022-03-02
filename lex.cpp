@@ -20,7 +20,7 @@ void json::CharStream::set_string(std::string s) {
     m_column = 1;
 }
 
-const char json::CharStream::next () {
+const unsigned char json::CharStream::next () {
     m_current = std::next(m_current);
     
     m_current_char = *std::prev(m_current);
@@ -36,11 +36,11 @@ const char json::CharStream::next () {
     return m_current_char;
 }
 
-const char json::CharStream::current() const {
+const unsigned char json::CharStream::current() const {
     return m_current_char;
 }
 
-const char json::CharStream::peek() const {
+const unsigned char json::CharStream::peek() const {
     return *m_current;
 }
 
@@ -122,7 +122,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             std::string buffer = "";
 
             while (!m_stream.is_end()) {
-                const char c = m_stream.next();
+                const unsigned char c = m_stream.next();
                 
                 if (c == '"') {
                     break;
@@ -131,7 +131,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 buffer += c;
             }
 
-            m_tokens.push_back(Token(buffer, token_type::string));
+            m_tokens.push_back(Token(buffer, json::token_type::string));
             break;
         }
 
@@ -140,13 +140,13 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             std::string buffer = "t";
             
             while (is_alpha(m_stream.peek()) ) {
-                const char c = m_stream.next();
+                const unsigned char c = m_stream.next();
 
                 buffer += c;
             }
 
             if (buffer == "true") {
-                m_tokens.push_back(Token(buffer, token_type::true_value));
+                m_tokens.push_back(Token(buffer, json::token_type::true_value));
             }
             else {
                 m_error = make_error(json::error_type::unexpected_character, m_stream.peek());
@@ -162,13 +162,13 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             std::string buffer = "f";
 
             while (is_alpha(m_stream.peek())) {
-                const char c = m_stream.next();
+                const unsigned char c = m_stream.next();
 
                 buffer += c;
             }
 
             if (buffer == "false") {
-                m_tokens.push_back(Token(buffer, token_type::false_value));
+                m_tokens.push_back(Token(buffer, json::token_type::false_value));
             }
             else {
                 m_error = make_error(json::error_type::unexpected_character, m_stream.peek());
@@ -184,13 +184,13 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             std::string buffer = "n";
 
             while (is_alpha(m_stream.peek()) ) {
-                const char c = m_stream.next();
+                const unsigned char c = m_stream.next();
 
                 buffer += c;
             }
 
             if (buffer == "null") {
-                m_tokens.push_back(Token(buffer, token_type::null));
+                m_tokens.push_back(Token(buffer, json::token_type::null));
             }
             else {
                 m_error = make_error(json::error_type::unexpected_character, m_stream.peek());
@@ -231,7 +231,7 @@ json::Error json::Lexer::error() {
 }
 
 
-bool json::Lexer::is_alpha(const char c) {
+bool json::Lexer::is_alpha(const unsigned char c) {
     if (c >= 97 && c <= 122) {
         return true;
     }
@@ -254,13 +254,13 @@ std::string json::Lexer::error_type_to_string(json::error_type e) {
     }
 }
 
-json::Error json::Lexer::make_error(json::error_type etype, const char c) {
+json::Error json::Lexer::make_error(json::error_type etype, const unsigned char c) {
     Error error{
         m_stream.line()
        ,m_stream.column()
        ,etype
        ,error_type_to_string(etype)
-       ,std::string{c}
+       ,std::string{(const char)c}
     };
 
     return error;

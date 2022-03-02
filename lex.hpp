@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-namespace json{
+namespace json {
+
     enum class token_type{
         curly_bracket_open,
         curly_bracket_close,
@@ -46,10 +47,10 @@ namespace json{
 
         auto set_string(std::string) -> void;
         
-        auto next() -> const char;
-        auto peek() const -> const char;
+        auto next() -> const unsigned char;
+        auto peek() const -> const unsigned char;
         
-        auto current() const -> const char;
+        auto current() const -> const unsigned char;
         auto is_end() const -> bool;
 
         auto line() const -> int;
@@ -58,7 +59,8 @@ namespace json{
     private:
         std::string m_text_buffer;
         std::string::iterator m_current;
-        char m_current_char;
+
+        unsigned char m_current_char;
         int m_line, m_column;
     };
 
@@ -74,9 +76,9 @@ namespace json{
         auto error() -> Error;
         
     private:
-        auto is_alpha(const char) -> bool;
+        auto is_alpha(const unsigned char) -> bool;
         auto error_type_to_string(json::error_type) -> std::string;
-        auto make_error(json::error_type, const char) -> Error;
+        auto make_error(json::error_type, const unsigned char) -> Error;
 
     private:
         CharStream m_stream;
