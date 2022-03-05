@@ -39,6 +39,9 @@ namespace json {
         std::string error_value = "";
     };
 
+    auto hexstring_to_int(std::string) -> int;
+    auto codepoint_to_utf8(int) -> std::string;
+    auto encode_utf_escape_sequence(std::string) -> std::string;
 
     struct CharStream {
     public:

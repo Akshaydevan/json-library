@@ -131,7 +131,55 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 buffer += c;
             }
 
-            m_tokens.push_back(Token(buffer, json::token_type::string));
+            std::string encoded_buffer;
+
+            for (auto i = buffer.begin(); i != buffer.end(); i++) {
+                unsigned char c = *i;
+
+                if (c == '\\') {
+                    if (std::next(i) == buffer.end()) {
+                        //TODO: throw "abrupt end of escape sequence"
+                        std::cerr << "abrupt end of escape sequence";
+                        std::abort();
+                    }
+
+                    if (*++i == 'u') {
+                        if (buffer.end() - i+1 < 5) {
+                            //TODO:throw "malformed unicode escape sequence"
+                            std::cerr << "malformed unicode escape sequence\n";
+                            std::abort();
+                        }
+
+                        //check for surrogate pair
+                        if (buffer.end() - i + 1 >= 10) {
+
+                            if (*(i + 5) == '\\' && *(i + 6) == 'u') {
+                                std::string full_string = std::string(i + 1, i + 11);
+
+                                encoded_buffer += encode_utf_escape_sequence(std::string(i+1, i + 11));
+                                
+                                i += 10;
+                                continue;
+                            }
+                        }
+
+                        encoded_buffer += encode_utf_escape_sequence(std::string(i+1, i+5));
+                        i += 4;
+                        continue;
+                    }
+                    else {
+                        //adding escape character to buffer
+
+                        encoded_buffer += c;
+                        encoded_buffer += *i;
+                    }
+                }
+                else {
+                    encoded_buffer += c;
+                }
+            }
+
+            m_tokens.push_back(Token(encoded_buffer, json::token_type::string));
             break;
         }
 
@@ -264,4 +312,119 @@ json::Error json::Lexer::make_error(json::error_type etype, const unsigned char 
     };
 
     return error;
+}
+
+auto json::encode_utf_escape_sequence(std::string unicode_string) -> std::string{
+    int codepoint1 = hexstring_to_int(unicode_string);
+    
+
+    if (unicode_string.length() > 4) {
+        int codepoint2 = hexstring_to_int(std::string(unicode_string.begin() + 6, unicode_string.end()));
+    
+        //convert utf16 surrogate pair to code-point
+        codepoint1 -= 0xD800;
+        codepoint2 -= 0xDc00;
+
+        codepoint1 = codepoint1 << 10;
+
+        int final_codepoint = codepoint1 | codepoint2;
+        final_codepoint += 0x10000;
+
+        return json::codepoint_to_utf8(final_codepoint);
+    }
+
+
+    return json::codepoint_to_utf8(codepoint1);
+}
+
+auto json::hexstring_to_int(std::string hex_string) -> int {
+    int codepoint = 0;
+
+    for (auto i = hex_string.begin(); i < hex_string.begin() + 4; i++) {
+        codepoint *= 16;
+
+        switch (*i) {
+        case '0': codepoint += 0; break;
+        case '1': codepoint += 1; break;
+        case '2': codepoint += 2; break;
+        case '3': codepoint += 3; break;
+        case '4': codepoint += 4; break;
+        case '5': codepoint += 5; break;
+        case '6': codepoint += 6; break;
+        case '7': codepoint += 7; break;
+        case '8': codepoint += 8; break;
+        case '9': codepoint += 9; break;
+
+        case 'a':
+        case 'A':
+            codepoint += 10; break;
+
+        case 'b':
+        case 'B':
+            codepoint += 11; break;
+
+        case 'c':
+        case 'C':
+            codepoint += 12; break;
+
+        case 'd':
+        case 'D':
+            codepoint += 13; break;
+
+        case 'e':
+        case 'E':
+            codepoint += 14; break;
+
+        case 'f':
+        case 'F':
+            codepoint += 15; break;
+
+        default:
+            //TODO: throw "invalid unicode character in escape sequence"
+            std::cerr << "invalid character: " << *i << "\n";
+            std::abort();
+        }
+    }
+
+    return codepoint;
+}
+
+std::string json::codepoint_to_utf8(int codepoint) {
+    std::string s;
+
+    if (codepoint <= 0x7F) {
+        // Plain ASCII
+
+        s.resize(1);
+
+        s[0] = (char)codepoint;
+    }
+    else if (codepoint <= 0x07FF) {
+        // 2-byte unicode
+
+        s.resize(2);
+
+        s[0] = (char)(((codepoint >> 6) & 0x1F) | 0xC0);
+        s[1] = (char)(((codepoint >> 0) & 0x3F) | 0x80);
+    }
+    else if (codepoint <= 0xFFFF) {
+        // 3-byte unicode
+
+        s.resize(3);
+        s[0] = (char)(((codepoint >> 12) & 0x0F) | 0xE0);
+        s[1] = (char)(((codepoint >> 6) & 0x3F) | 0x80);
+        s[2] = (char)(((codepoint >> 0) & 0x3F) | 0x80);
+
+    }
+    else if (codepoint <= 0x10FFFF) {
+        // 4-byte unicode
+
+        s.resize(4);
+        s[0] = (char)(((codepoint >> 18) & 0x07) | 0xF0);
+        s[1] = (char)(((codepoint >> 12) & 0x3F) | 0x80);
+        s[2] = (char)(((codepoint >> 6) & 0x3F) | 0x80);
+        s[3] = (char)(((codepoint >> 0) & 0x3F) | 0x80);
+    }
+
+    return s;
 }
