@@ -204,7 +204,6 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             }
             else {
                 m_error = Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
-
                 return m_tokens;
             }
 
@@ -261,10 +260,14 @@ std::vector<json::Token> json::Lexer::make_tokens() {
         case '\n':
             break;
 
-        default:
-            m_error = Error(m_stream.line(), m_stream.column(), "unexpected character " + m_stream.current());
+        default: {
+            std::string err_msg = "unexpected character ";
+            err_msg.push_back(m_stream.current());
+
+            m_error = Error(m_stream.line(), m_stream.column(), err_msg);
 
             return m_tokens;
+            }
         }
     }
 
