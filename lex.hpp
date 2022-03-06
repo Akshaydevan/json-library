@@ -21,11 +21,6 @@ namespace json {
         end_of_file
     };
 
-    enum class error_type {
-        none,
-        unexpected_character
-    };
-
     struct Token{
         std::string value;
         token_type type;
@@ -34,9 +29,7 @@ namespace json {
     struct Error {
         int line = -1;
         int column = -1;
-        error_type error = json::error_type::none;
         std::string error_msg = "";
-        std::string error_value = "";
     };
 
     auto hexstring_to_int(std::string) -> int;
@@ -80,8 +73,6 @@ namespace json {
         
     private:
         auto is_alpha(const unsigned char) -> bool;
-        auto error_type_to_string(json::error_type) -> std::string;
-        auto make_error(json::error_type, const unsigned char) -> Error;
 
     private:
         CharStream m_stream;
