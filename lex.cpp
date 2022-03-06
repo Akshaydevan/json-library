@@ -132,9 +132,8 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             }
 
             if (m_stream.current() != '"') {
-                //TODO: throw "expected '"' at the end of string"
-                std::cerr << "expected '\"' at the end of string";
-                std::abort();
+                
+                throw Error(m_stream.line(), m_stream.column(), "expected '\"' at the end of string");
             }
 
             std::string encoded_buffer;
@@ -143,12 +142,10 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 unsigned char c = *i;
 
                 if (c == '\\') {
-                    if (std::next(i) == buffer.end()) {
-                        //TODO: throw "abrupt end of escape sequence"
-                        std::cerr << "abrupt end of escape sequence";
-                        std::abort();
+                    if (std::next(i) == buffer.end()){
+                        throw Error(m_stream.line(), m_stream.column(), "abrupt end of escape sequence");
                     }
-
+                
                     if (*++i == 'u') {
                         if (buffer.end() - i+1 < 5) {
                             //TODO:throw "malformed unicode escape sequence"
@@ -203,7 +200,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 m_tokens.push_back(Token(buffer, json::token_type::true_value));
             }
             else {
-                m_error = Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
+                throw Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
                 return m_tokens;
             }
 
@@ -224,7 +221,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 m_tokens.push_back(Token(buffer, json::token_type::false_value));
             }
             else {
-                m_error = Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
+                throw Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
                 
                 return m_tokens;
             }
@@ -246,7 +243,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 m_tokens.push_back(Token(buffer, json::token_type::null));
             }
             else {
-                m_error = Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
+                throw Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
 
                 return m_tokens;
             }
@@ -264,7 +261,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             std::string err_msg = "unexpected character ";
             err_msg.push_back(m_stream.current());
 
-            m_error = Error(m_stream.line(), m_stream.column(), err_msg);
+            throw Error(m_stream.line(), m_stream.column(), err_msg);
 
             return m_tokens;
             }
@@ -274,18 +271,6 @@ std::vector<json::Token> json::Lexer::make_tokens() {
     return m_tokens;
 }
 
-bool json::Lexer::success() {
-    if (m_error.line == -1) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-json::Error json::Lexer::error() {
-    return m_error;
-}
 
 bool json::Lexer::is_alpha(const unsigned char c) {
     if (c >= 97 && c <= 122) {
@@ -411,4 +396,27 @@ std::string json::codepoint_to_utf8(int codepoint) {
     }
 
     return s;
+}
+
+json::Error::Error(int l, int c, std::string s)
+    :m_line(l)
+    ,m_column(c)
+    ,m_error_msg(s)
+{
+
+}
+
+const char* json::Error::what() const throw()
+{
+    return m_error_msg.c_str();
+}
+
+int json::Error::line()
+{
+    return m_line;
+}
+
+auto json::Error::column() -> int
+{
+    return m_column;
 }

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <exception>
 
 namespace json {
 
@@ -26,10 +27,20 @@ namespace json {
         token_type type;
     };
 
-    struct Error {
-        int line = -1;
-        int column = -1;
-        std::string error_msg = "";
+    class Error : public std::exception {
+    public:
+        Error() = default;
+        Error(int, int, std::string);
+
+        const char* what() const throw();
+        
+        auto line() -> int;
+        auto column() -> int;
+
+    private:
+        int m_line = -1;
+        int m_column = -1;
+        std::string m_error_msg = "";
     };
 
     auto hexstring_to_int(std::string) -> int;
@@ -67,16 +78,12 @@ namespace json {
         auto read_file(std::string) -> bool;
         auto set_json_string(std::string) -> void;
         auto make_tokens() -> std::vector<json::Token>;
-
-        auto success() -> bool;
-        auto error() -> Error;
         
     private:
         auto is_alpha(const unsigned char) -> bool;
 
     private:
         CharStream m_stream;
-        Error m_error;
         std::vector<json::Token> m_tokens;
     };
 }
