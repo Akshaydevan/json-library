@@ -131,6 +131,12 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 buffer += c;
             }
 
+            if (*(buffer.end()-1) != '"') {
+                //TODO: throw "expected '"' at the end of string"
+                std::cerr << "expected '\"' at the end of string";
+                std::abort();
+            }
+
             std::string encoded_buffer;
 
             for (auto i = buffer.begin(); i != buffer.end(); i++) {
