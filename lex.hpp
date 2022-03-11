@@ -45,6 +45,8 @@ namespace json {
 
     auto hexstring_to_int(std::string) -> int;
     auto codepoint_to_utf8(int) -> std::string;
+    auto is_alpha(const unsigned char) -> bool;
+    auto is_numeric(const unsigned char) -> bool;
     auto encode_utf_escape_sequence(std::string) -> std::string;
 
     struct CharStream {
@@ -79,9 +81,6 @@ namespace json {
         auto set_json_string(std::string) -> void;
         auto make_tokens() -> std::vector<json::Token>;
         
-    private:
-        auto is_alpha(const unsigned char) -> bool;
-
     private:
         CharStream m_stream;
         std::vector<json::Token> m_tokens;

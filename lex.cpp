@@ -272,17 +272,6 @@ std::vector<json::Token> json::Lexer::make_tokens() {
 }
 
 
-bool json::Lexer::is_alpha(const unsigned char c) {
-    if (c >= 97 && c <= 122) {
-        return true;
-    }
-    else {
-        return false;
-    }
-
-}
-
-
 auto json::encode_utf_escape_sequence(std::string unicode_string) -> std::string{
     int codepoint1 = hexstring_to_int(unicode_string);
     
@@ -396,6 +385,25 @@ std::string json::codepoint_to_utf8(int codepoint) {
     }
 
     return s;
+}
+
+bool json::is_alpha (const unsigned char c) {
+    if (c >= 97 && c <= 122) {
+        return true;
+    }
+    else {
+        return false;
+    }
+
+}
+
+bool json::is_numeric (const unsigned char c) {
+    if ((c >= '0' && c <= '9') || c == '.') {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 json::Error::Error(int l, int c, std::string s)
