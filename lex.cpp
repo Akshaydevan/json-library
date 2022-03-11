@@ -251,6 +251,29 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             break;
         }
 
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '0':
+        case '.':
+        {
+            std::string number;
+
+            number += m_stream.current();
+
+            while (!m_stream.is_end() && json::is_numeric(m_stream.peek())) {
+                number.push_back(m_stream.next());
+            }
+
+            break;
+        }
+
         case ' ':
             break;
 
