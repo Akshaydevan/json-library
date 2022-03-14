@@ -370,6 +370,96 @@ auto json::hexstring_to_int(std::string hex_string) -> int {
     return codepoint;
 }
 
+auto json::string_to_double(std::string s) -> double
+{
+    //[[plus or minus] [number] [fraction]] [[e] [plus or minus] [number]]
+
+    std::string integer, fraction, exponent;
+    bool canReadFraction = true;
+
+    int i = 0;
+
+
+    if (s[0] == '+' || s[0] == '-') {
+        integer.push_back(s[0]);
+
+        if (s.length() <= 1) {
+            std::cerr << "no number after sign\n";
+            std::abort();
+        }
+
+        i++;
+    }
+
+    for (; s.begin() + i != s.end(); i++) {
+        char c = s[i];
+
+        switch (c) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            integer.push_back(c);
+            break;
+
+        case '.':
+            if (canReadFraction) {
+                integer.push_back(c);
+            }
+            else {
+                std::cerr << "cannot have decimal\n";
+                std::abort();
+            }
+
+            break;
+
+        case 'e':
+        {
+            if (s.length() - (i + 1) == 0) {
+                std::cerr << "no number after e\n";
+                std::abort();
+            }
+
+            integer.push_back(c);
+
+            if (s[i + 1] == '+' || s[i + 1] == '-') {
+                integer.push_back(s[++i]);
+
+                if (s.length() - (i + 1) == 0) {
+                    std::cerr << "no number after sign\n";
+                    std::abort();
+                }
+            }
+
+            canReadFraction = false;
+
+            break;
+        }
+
+        default:
+            std::cerr << "invalid character: " << c << "\n";
+            std::abort();
+        }
+    }
+
+    std::stringstream stream(integer);
+    double res;
+
+    if (!(stream >> res)) {
+        std::cerr << "cannot convert to decimal\n";
+        std::abort();
+    }
+
+
+    return res;
+}
+
 std::string json::codepoint_to_utf8(int codepoint) {
     std::string s;
 
@@ -421,7 +511,7 @@ bool json::is_alpha (const unsigned char c) {
 }
 
 bool json::is_numeric (const unsigned char c) {
-    if ((c >= '0' && c <= '9') || c == '.') {
+    if ((c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.' || c == 'e' || c == 'E') {
         return true;
     }
     else {

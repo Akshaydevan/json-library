@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <exception>
@@ -44,6 +45,7 @@ namespace json {
     };
 
     auto hexstring_to_int(std::string) -> int;
+    auto string_to_double(std::string) -> double;
     auto codepoint_to_utf8(int) -> std::string;
     auto is_alpha(const unsigned char) -> bool;
     auto is_numeric(const unsigned char) -> bool;
