@@ -3,7 +3,6 @@
 json::CharStream::CharStream(std::string s)
     :m_text_buffer(s)
     ,m_current(s.begin())
-    ,m_current_char(*m_current)
     ,m_line(1)
     ,m_column(1)
 {
@@ -14,18 +13,17 @@ void json::CharStream::set_string(std::string s) {
     m_text_buffer = s;
 
     m_current = m_text_buffer.begin();
-    m_current_char = *m_current;
 
     m_line = 1;
     m_column = 1;
 }
 
 const unsigned char json::CharStream::next () {
-    m_current = std::next(m_current);
-    
-    m_current_char = *std::prev(m_current);
+    char current_char = *m_current;
 
-    if (m_current_char == '\n') {
+    m_current = std::next(m_current);
+
+    if (current_char == '\n') {
         m_line++;
         m_column = 0;
     }
@@ -33,11 +31,15 @@ const unsigned char json::CharStream::next () {
         m_column++;
     }
 
-    return m_current_char;
+    return current_char;
 }
 
 const unsigned char json::CharStream::current() const {
-    return m_current_char;
+    if (m_current == m_text_buffer.begin()) {
+        return *m_current;
+    }
+    
+    return *std::prev(m_current);
 }
 
 const unsigned char json::CharStream::peek() const {

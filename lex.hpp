@@ -72,7 +72,6 @@ namespace json {
         std::string m_text_buffer;
         std::string::iterator m_current;
 
-        unsigned char m_current_char;
         int m_line, m_column;
     };
 
