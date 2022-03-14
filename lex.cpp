@@ -271,6 +271,13 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 number.push_back(m_stream.next());
             }
 
+            if (parse_integer(number)) {
+                m_tokens.push_back(Token(number, json::token_type::number));
+            }
+            else {
+                throw Error(m_stream.line(), m_stream.column(), "invalid number");
+            }
+
             break;
         }
 
@@ -370,7 +377,7 @@ auto json::hexstring_to_int(std::string hex_string) -> int {
     return codepoint;
 }
 
-auto json::string_to_double(std::string s) -> double
+auto json::parse_integer(std::string s) -> bool
 {
     //[[plus or minus] [number] [fraction]] [[e] [plus or minus] [number]]
 
@@ -379,13 +386,12 @@ auto json::string_to_double(std::string s) -> double
 
     int i = 0;
 
-
+    //can have plus or minus at start
     if (s[0] == '+' || s[0] == '-') {
         integer.push_back(s[0]);
 
         if (s.length() <= 1) {
-            std::cerr << "no number after sign\n";
-            std::abort();
+            return false;
         }
 
         i++;
@@ -413,8 +419,7 @@ auto json::string_to_double(std::string s) -> double
                 integer.push_back(c);
             }
             else {
-                std::cerr << "cannot have decimal\n";
-                std::abort();
+                return false;
             }
 
             break;
@@ -422,8 +427,7 @@ auto json::string_to_double(std::string s) -> double
         case 'e':
         {
             if (s.length() - (i + 1) == 0) {
-                std::cerr << "no number after e\n";
-                std::abort();
+                return false;
             }
 
             integer.push_back(c);
@@ -432,32 +436,31 @@ auto json::string_to_double(std::string s) -> double
                 integer.push_back(s[++i]);
 
                 if (s.length() - (i + 1) == 0) {
-                    std::cerr << "no number after sign\n";
-                    std::abort();
+                    return false;
                 }
             }
 
+            //exponent cannot be a float
             canReadFraction = false;
 
             break;
         }
 
         default:
-            std::cerr << "invalid character: " << c << "\n";
-            std::abort();
+            return false;
         }
     }
 
+    //check for overflow using stringstream
     std::stringstream stream(integer);
     double res;
 
     if (!(stream >> res)) {
-        std::cerr << "cannot convert to decimal\n";
-        std::abort();
+        return false;
     }
 
 
-    return res;
+    return true;
 }
 
 std::string json::codepoint_to_utf8(int codepoint) {
