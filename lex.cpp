@@ -150,9 +150,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 
                     if (*++i == 'u') {
                         if (buffer.end() - i+1 < 5) {
-                            //TODO:throw "malformed unicode escape sequence"
-                            std::cerr << "malformed unicode escape sequence\n";
-                            std::abort();
+                            throw Error(m_stream.line(), m_stream.column(), "malformed unicode escape sequence");
                         }
 
                         //check for surrogate pair
@@ -370,9 +368,7 @@ auto json::hexstring_to_int(std::string hex_string) -> int {
             codepoint += 15; break;
 
         default:
-            //TODO: throw "invalid unicode character in escape sequence"
-            std::cerr << "invalid character: " << *i << "\n";
-            std::abort();
+            throw Error(m_stream.line(), m_stream.column(), "invalid character");
         }
     }
 
