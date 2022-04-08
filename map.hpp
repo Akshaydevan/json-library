@@ -8,7 +8,7 @@
 namespace json{
     class value;
 
-    using value_type = std::variant<int, bool, std::string, std::vector<value>, std::unique_ptr<value>>;
+    using value_type = std::variant<float, bool, std::string, std::vector<value>, std::unique_ptr<value>>;
 
     class value : public json::value_type
     {
@@ -22,7 +22,7 @@ namespace json{
             void insert(std::string, json::value);
 
             template <typename T>
-            T& get(std::string k){    
+            T& get(std::string k){
                 return std::get<T>(objectMap[k]);
             }
 

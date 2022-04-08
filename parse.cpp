@@ -19,17 +19,18 @@ bool json::json_parser::parse(std::vector<json::Token> t){
 bool json::json_parser::load_object(){
     while(true){
         if(index->type != json::token_type::string){
-            std::cerr << "invalid value " << index->value << " expected string value" << "\n";
+            std::cerr << "invalid value " << index->valueAsString() << " expected string value" << "\n";
             return false;
         }
 
         if((++index)->type != json::token_type::colen){
-            std::cerr << "expected colen after " << std::prev(index)->value << "\n";
+            std::cerr << "expected colen after " << std::prev(index)->valueAsString() << "\n";
             return false;
         }
 
-        std::string &key = std::prev(index)->value;
-        
+        auto item = std::prev(index)->value;
+        std::string &key = std::get<std::string>(item);
+
         index++;
 
         json::value value = load_value();
@@ -48,7 +49,7 @@ bool json::json_parser::load_object(){
             return true;
 
         default:
-            std::cerr << "unexpected value " << index->value << "\n";
+            std::cerr << "unexpected value " << index->valueAsString() << "\n";
             return false;
             break;
         }
@@ -73,7 +74,7 @@ json::value json::json_parser::load_array(){
             return list;
 
         default:
-            std::cerr << "unexpected value " << index->value << "\n";
+            std::cerr << "unexpected value " << index->valueAsString() << "\n";
             return list;
         }
     }
@@ -83,7 +84,7 @@ json::value json::json_parser::load_value(){
     switch (index->type)
     {
     case json::token_type::string:
-        return json::value(index->value);
+        return json::value(index->valueAsString());
         break;
     
     case json::token_type::true_value:
@@ -97,6 +98,9 @@ json::value json::json_parser::load_value(){
     case json::token_type::square_bracket_open:
         return json::value(load_array());
         break;
+
+    case json::token_type::number:
+        return json::value(std::get<float>(index->value));
     
     default:
         return json::value(false);

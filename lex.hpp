@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <variant>
 #include <exception>
 
 namespace json {
@@ -25,8 +26,10 @@ namespace json {
     };
 
     struct Token{
-        std::string value;
+        std::variant<float, bool, std::string> value;
         token_type type;
+
+        std::string valueAsString();
     };
 
     class Error : public std::exception {
