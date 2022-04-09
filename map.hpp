@@ -16,17 +16,4 @@ namespace json{
             using json::value_type::value_type;
             using json::value_type::operator=;
     };
-
-    class map{
-        public:
-            void insert(std::string, json::value);
-
-            template <typename T>
-            T& get(std::string k){
-                return std::get<T>(objectMap[k]);
-            }
-
-        private:
-            std::map<std::string, json::value> objectMap;
-    };
 }

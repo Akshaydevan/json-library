@@ -1,15 +1,15 @@
 #include "parse.hpp"
 
-bool json::json_parser::parse(std::vector<json::Token> t){
+json::value json::json_parser::parse(std::vector<json::Token> t){
     tokenList = t;
     index = tokenList.begin();
-
+    json::value obj;
 
     if(tokenList[0].type == token_type::curly_bracket_open){        
-        load_object();
+        obj = load_object();
     }
 
-    return true;
+    return obj;
 }
 
 json::value json::json_parser::load_object(){
@@ -35,8 +35,6 @@ json::value json::json_parser::load_object(){
 
         json::value value = load_value();
         obj.insert({key, value});
-
-        container.insert(key, std::move(value));
 
         index++;
 
@@ -114,8 +112,4 @@ json::value json::json_parser::load_value(){
         return json::value(false);
         break;
     }
-}
-
-json::map&& json::json_parser::get_map(){
-    return std::move(container);
 }
