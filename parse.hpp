@@ -11,7 +11,7 @@ namespace json{
             json_parser() = default;
             
             bool parse(std::vector<json::Token>);
-            bool load_object();
+            json::value load_object();
             json::value load_array();
             json::value load_value();
 

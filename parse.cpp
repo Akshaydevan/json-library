@@ -6,26 +6,26 @@ bool json::json_parser::parse(std::vector<json::Token> t){
 
 
     if(tokenList[0].type == token_type::curly_bracket_open){        
-        index++;
-
-        if(!load_object()){
-            return false;
-        }
+        load_object();
     }
 
     return true;
 }
 
-bool json::json_parser::load_object(){
+json::value json::json_parser::load_object(){
+    std::map<std::string, json::value> obj;
+
+    index++;
+
     while(true){
         if(index->type != json::token_type::string){
             std::cerr << "invalid value " << index->valueAsString() << " expected string value" << "\n";
-            return false;
+            throw std::runtime_error("encountered error");
         }
 
         if((++index)->type != json::token_type::colen){
             std::cerr << "expected colen after " << std::prev(index)->valueAsString() << "\n";
-            return false;
+            throw std::runtime_error("encountered error");
         }
 
         auto item = std::prev(index)->value;
@@ -34,10 +34,12 @@ bool json::json_parser::load_object(){
         index++;
 
         json::value value = load_value();
+        obj.insert({key, value});
 
         container.insert(key, std::move(value));
 
         index++;
+
 
         switch (index->type)
         {
@@ -46,15 +48,16 @@ bool json::json_parser::load_object(){
             continue;
         
         case json::token_type::curly_bracket_close:
-            return true;
+            return json::value(obj);
 
         default:
             std::cerr << "unexpected value " << index->valueAsString() << "\n";
-            return false;
-            break;
+            throw std::runtime_error("encountered error");
         }
 
     }
+
+    return json::value(obj);
 }
 
 json::value json::json_parser::load_array(){
@@ -101,6 +104,11 @@ json::value json::json_parser::load_value(){
 
     case json::token_type::number:
         return json::value(std::get<float>(index->value));
+        break;
+
+    case json::token_type::curly_bracket_open:
+        return json::value(load_object());
+        break;
     
     default:
         return json::value(false);
