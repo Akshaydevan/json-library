@@ -156,6 +156,19 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             while (!m_stream.is_end()) {
                 const unsigned char c = m_stream.next();
                 
+                /*
+                 * checkign if double quotes (' " ') is escaped as it should not
+                 * be treated as end of string. It also checks if back slash (' \ ')
+                 * is escaped so that the second black slash is not treated as another
+                 * escape sequence.
+                 */
+                if (c == '\\' && (m_stream.peek() == '\"' || m_stream.peek() == '\\')) {
+                    buffer += c;
+                    buffer += '"';
+                    m_stream.next();
+                    continue;
+                }
+
                 if (c == '"') {
                     break;
                 }
