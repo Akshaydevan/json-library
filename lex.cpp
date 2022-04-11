@@ -123,6 +123,9 @@ void json::Lexer::set_json_string(std::string text) {
 std::vector<json::Token> json::Lexer::make_tokens() {
     while (!m_stream.is_end()) {
 
+        int currentline = m_stream.line();
+        int currentColumn = m_stream.column();
+
         switch (m_stream.next())
         {
         case '{':
@@ -343,6 +346,10 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             return m_tokens;
             }
         }
+
+        auto &last = *(m_tokens.end() - 1);
+        last.line = currentline;
+        last.column = currentColumn;
     }
 
     return m_tokens;

@@ -29,6 +29,7 @@ namespace json {
         std::variant<float, bool, std::string> value;
         token_type type;
 
+        int line, column;
         std::string valueAsString();
     };
 
