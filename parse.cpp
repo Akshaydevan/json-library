@@ -8,6 +8,9 @@ json::value json::json_parser::parse(std::vector<json::Token> t){
     if(tokenList[0].type == token_type::curly_bracket_open){        
         obj = load_object();
     }
+    else if(tokenList[0].type == token_type::square_bracket_open) {
+        obj = load_array();
+    }
 
     return obj;
 }
