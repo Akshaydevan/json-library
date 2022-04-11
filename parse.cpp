@@ -20,9 +20,15 @@ json::value json::json_parser::load_object(){
 
     index++;
 
+    //checking for empty object
+    if (index->type == json::token_type::curly_bracket_close) {
+        return json::value(obj);
+    }
+
     while(true){
+
         if(index->type != json::token_type::string){
-            std::cerr << "invalid value " << index->valueAsString() << " expected string value" << "\n";
+            std::cerr << "invalid value inside object " << index->valueAsString() << " expected string value" << "\n";
             throw std::runtime_error("encountered error");
         }
 
@@ -52,7 +58,7 @@ json::value json::json_parser::load_object(){
             return json::value(obj);
 
         default:
-            std::cerr << "unexpected value " << index->valueAsString() << "\n";
+            std::cerr << "unexpected value inside object " << index->valueAsString() << "\n";
             throw std::runtime_error("encountered error");
         }
 
@@ -64,22 +70,28 @@ json::value json::json_parser::load_object(){
 json::value json::json_parser::load_array(){
     std::vector<json::value> list;
 
-    while(true){
+    index++;
 
-        index++;
+    //checking for empty array
+    if (index->type == json::token_type::square_bracket_close) {
+        return json::value(list);
+    }
+
+    while(true){
         list.push_back(std::move(load_value()));
         
         switch ((++index)->type)
         {
         case json::token_type::comma:
+            index++;
             continue;
         
         case json::token_type::square_bracket_close:
             return list;
 
         default:
-            std::cerr << "unexpected value " << index->valueAsString() << "\n";
-            return list;
+            std::cerr << "unexpected value inside array " << index->valueAsString() << "\n";
+            throw std::runtime_error("encountered error");
         }
     }
 }
@@ -112,7 +124,7 @@ json::value json::json_parser::load_value(){
         break;
     
     default:
-        return json::value(false);
-        break;
+        std::cerr << "invalid value";
+        throw std::runtime_error("encountered error");
     }
 }
