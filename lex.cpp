@@ -1,15 +1,15 @@
 #include "lex.hpp"
 
 json::CharStream::CharStream(std::string s)
-    :m_text_buffer(s)
-    ,m_current(s.begin())
-    ,m_line(1)
-    ,m_column(1)
+    : m_text_buffer(s)
+    , m_current(s.begin())
+    , m_line(1)
+    , m_column(1)
 {
-    
 }
 
-void json::CharStream::set_string(std::string s) {
+void json::CharStream::set_string(std::string s)
+{
     m_text_buffer = s;
 
     m_current = m_text_buffer.begin();
@@ -18,7 +18,8 @@ void json::CharStream::set_string(std::string s) {
     m_column = 1;
 }
 
-const unsigned char json::CharStream::next () {
+const unsigned char json::CharStream::next()
+{
     char current_char = *m_current;
 
     m_current = std::next(m_current);
@@ -26,45 +27,40 @@ const unsigned char json::CharStream::next () {
     if (current_char == '\n') {
         m_line++;
         m_column = 0;
-    }
-    else {
+    } else {
         m_column++;
     }
 
     return current_char;
 }
 
-const unsigned char json::CharStream::current() const {
+const unsigned char json::CharStream::current() const
+{
     if (m_current == m_text_buffer.begin()) {
         return *m_current;
     }
-    
+
     return *std::prev(m_current);
 }
 
-const unsigned char json::CharStream::peek() const {
-    return *m_current;
-}
+const unsigned char json::CharStream::peek() const { return *m_current; }
 
-bool json::CharStream::is_end () const {
+bool json::CharStream::is_end() const
+{
     if (m_current == m_text_buffer.end()) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
 
-auto json::CharStream::line() const -> int {
-    return m_line;
-}
+auto json::CharStream::line() const -> int { return m_line; }
 
-auto json::CharStream::column() const -> int {
-    return m_column;
-}
+auto json::CharStream::column() const -> int { return m_column; }
 
-std::string json::Token::valueAsString() {
-    switch(this->type) {
+std::string json::Token::valueAsString()
+{
+    switch (this->type) {
     case json::token_type::curly_bracket_open:
     case json::token_type::curly_bracket_close:
     case json::token_type::square_bracket_open:
@@ -75,7 +71,7 @@ std::string json::Token::valueAsString() {
     case json::token_type::string:
         return std::get<std::string>(this->value);
 
-    case json::token_type::number:{
+    case json::token_type::number: {
         std::stringstream stream;
         stream << std::get<float>(this->value);
 
@@ -93,13 +89,14 @@ std::string json::Token::valueAsString() {
     }
 }
 
-bool json::Lexer::read_file (std::string file_name) {
+bool json::Lexer::read_file(std::string file_name)
+{
     std::fstream file(file_name);
 
     if (!file.is_open()) {
         return false;
     }
-    
+
     std::string buffer = "";
 
     while (file) {
@@ -116,55 +113,52 @@ bool json::Lexer::read_file (std::string file_name) {
     return true;
 }
 
-void json::Lexer::set_json_string(std::string text) {
+void json::Lexer::set_json_string(std::string text)
+{
     m_stream.set_string(text);
 }
 
-std::vector<json::Token> json::Lexer::make_tokens() {
+std::vector<json::Token> json::Lexer::make_tokens()
+{
     while (!m_stream.is_end()) {
-
         int currentline = m_stream.line();
         int currentColumn = m_stream.column();
 
-        switch (m_stream.next())
-        {
+        switch (m_stream.next()) {
         case '{':
-            m_tokens.push_back(Token{"{", json::token_type::curly_bracket_open});
+            m_tokens.push_back(Token { "{", json::token_type::curly_bracket_open });
             break;
 
         case '}':
-            m_tokens.push_back(Token{"}", json::token_type::curly_bracket_close});
+            m_tokens.push_back(Token { "}", json::token_type::curly_bracket_close });
             break;
 
         case '[':
-            m_tokens.push_back(Token{"[", json::token_type::square_bracket_open});
+            m_tokens.push_back(Token { "[", json::token_type::square_bracket_open });
             break;
 
         case ']':
-            m_tokens.push_back(Token{"]", json::token_type::square_bracket_close});
+            m_tokens.push_back(Token { "]", json::token_type::square_bracket_close });
             break;
 
         case ',':
-            m_tokens.push_back(Token{",", json::token_type::comma});
+            m_tokens.push_back(Token { ",", json::token_type::comma });
             break;
 
         case ':':
-            m_tokens.push_back(Token{":", json::token_type::colen});
+            m_tokens.push_back(Token { ":", json::token_type::colen });
             break;
 
-        case '"':
-        {
+        case '"': {
             std::string buffer = "";
 
             while (!m_stream.is_end()) {
                 const unsigned char c = m_stream.next();
-                
-                /*
-                 * checkign if double quotes (' " ') is escaped as it should not
-                 * be treated as end of string. It also checks if back slash (' \ ')
-                 * is escaped so that the second black slash is not treated as another
-                 * escape sequence.
-                 */
+
+                // Checkign if double quotes (' " ') is escaped as it should not
+                // be treated as end of string. It also checks if back slash (' \ ')
+                // is escaped so that the second black slash is not treated as another
+                // escape sequence.
                 if (c == '\\' && (m_stream.peek() == '\"' || m_stream.peek() == '\\')) {
                     buffer += c;
                     buffer += '"';
@@ -180,8 +174,8 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             }
 
             if (m_stream.current() != '"') {
-                
-                throw Error(m_stream.line(), m_stream.column(), "expected '\"' at the end of string");
+                throw Error(m_stream.line(), m_stream.column(),
+                    "expected '\"' at the end of string");
             }
 
             std::string encoded_buffer;
@@ -190,71 +184,68 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 unsigned char c = *i;
 
                 if (c == '\\') {
-                    if (std::next(i) == buffer.end()){
-                        throw Error(m_stream.line(), m_stream.column(), "abrupt end of escape sequence");
+                    if (std::next(i) == buffer.end()) {
+                        throw Error(m_stream.line(), m_stream.column(),
+                            "abrupt end of escape sequence");
                     }
-                
+
                     if (*++i == 'u') {
-                        if (buffer.end() - i+1 < 5) {
-                            throw Error(m_stream.line(), m_stream.column(), "malformed unicode escape sequence");
+                        if (buffer.end() - i + 1 < 5) {
+                            throw Error(m_stream.line(), m_stream.column(),
+                                "malformed unicode escape sequence");
                         }
 
-                        //check for surrogate pair
+                        // check for surrogate pair
                         if (buffer.end() - i + 1 >= 10) {
-
                             if (*(i + 5) == '\\' && *(i + 6) == 'u') {
                                 std::string full_string = std::string(i + 1, i + 11);
 
-                                encoded_buffer += encode_utf_escape_sequence(std::string(i+1, i + 11));
-                                
+                                encoded_buffer += encode_utf_escape_sequence(std::string(i + 1, i + 11));
+
                                 i += 10;
                                 continue;
                             }
                         }
 
-                        encoded_buffer += encode_utf_escape_sequence(std::string(i+1, i+5));
+                        encoded_buffer += encode_utf_escape_sequence(std::string(i + 1, i + 5));
                         i += 4;
                         continue;
-                    }
-                    else {
-                        //adding escape character to buffer
+                    } else {
+                        // adding escape character to buffer
 
                         encoded_buffer += c;
                         encoded_buffer += *i;
                     }
-                }
-                else {
+                } else {
                     encoded_buffer += c;
                 }
             }
 
-            m_tokens.push_back(Token{encoded_buffer, json::token_type::string});
+            m_tokens.push_back(Token { encoded_buffer, json::token_type::string });
             break;
         }
 
-        case 't':
-        {
+        case 't': {
             std::string buffer = "t";
-            
-            while (is_alpha(m_stream.peek()) ) {
+
+            while (is_alpha(m_stream.peek())) {
                 const unsigned char c = m_stream.next();
 
                 buffer += c;
             }
 
             if (buffer == "true") {
-                m_tokens.push_back(Token{buffer, json::token_type::true_value});
-            }
-            else {
-                throw Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
+                m_tokens.push_back(Token { buffer, json::token_type::true_value });
+            } else {
+                throw Error(m_stream.line(), m_stream.column(),
+                    "unexpected character sequence " + buffer);
                 return m_tokens;
             }
 
             break;
         }
-        
-        case 'f':
-        {
+
+        case 'f': {
             std::string buffer = "f";
 
             while (is_alpha(m_stream.peek())) {
@@ -264,32 +255,31 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             }
 
             if (buffer == "false") {
-                m_tokens.push_back(Token{buffer, json::token_type::false_value});
-            }
-            else {
-                throw Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
-                
+                m_tokens.push_back(Token { buffer, json::token_type::false_value });
+            } else {
+                throw Error(m_stream.line(), m_stream.column(),
+                    "unexpected character sequence " + buffer);
+
                 return m_tokens;
             }
 
             break;
         }
 
-        case 'n':
-        {
+        case 'n': {
             std::string buffer = "n";
 
-            while (is_alpha(m_stream.peek()) ) {
+            while (is_alpha(m_stream.peek())) {
                 const unsigned char c = m_stream.next();
 
                 buffer += c;
             }
 
             if (buffer == "null") {
-                m_tokens.push_back(Token{buffer, json::token_type::null});
-            }
-            else {
-                throw Error(m_stream.line(), m_stream.column(), "unexpected character sequence " + buffer);
+                m_tokens.push_back(Token { buffer, json::token_type::null });
+            } else {
+                throw Error(m_stream.line(), m_stream.column(),
+                    "unexpected character sequence " + buffer);
 
                 return m_tokens;
             }
@@ -307,8 +297,7 @@ std::vector<json::Token> json::Lexer::make_tokens() {
         case '8':
         case '9':
         case '0':
-        case '.':
-        {
+        case '.': {
             std::string number;
 
             number += m_stream.current();
@@ -322,9 +311,8 @@ std::vector<json::Token> json::Lexer::make_tokens() {
                 float num;
                 stream >> num;
 
-                m_tokens.push_back(Token{num, json::token_type::number});
-            }
-            else {
+                m_tokens.push_back(Token { num, json::token_type::number });
+            } else {
                 throw Error(m_stream.line(), m_stream.column(), "invalid number");
             }
 
@@ -344,10 +332,10 @@ std::vector<json::Token> json::Lexer::make_tokens() {
             throw Error(m_stream.line(), m_stream.column(), err_msg);
 
             return m_tokens;
-            }
+        }
         }
 
-        auto &last = *(m_tokens.end() - 1);
+        auto& last = *(m_tokens.end() - 1);
         last.line = currentline;
         last.column = currentColumn;
     }
@@ -355,15 +343,16 @@ std::vector<json::Token> json::Lexer::make_tokens() {
     return m_tokens;
 }
 
-
-auto json::encode_utf_escape_sequence(std::string unicode_string) -> std::string{
+auto json::encode_utf_escape_sequence(std::string unicode_string)
+    -> std::string
+{
     int codepoint1 = hexstring_to_int(unicode_string);
-    
 
     if (unicode_string.length() > 4) {
-        int codepoint2 = hexstring_to_int(std::string(unicode_string.begin() + 6, unicode_string.end()));
-    
-        //convert utf16 surrogate pair to code-point
+        int codepoint2 = hexstring_to_int(
+            std::string(unicode_string.begin() + 6, unicode_string.end()));
+
+        // convert utf16 surrogate pair to code-point
         codepoint1 -= 0xD800;
         codepoint2 -= 0xDc00;
 
@@ -375,51 +364,77 @@ auto json::encode_utf_escape_sequence(std::string unicode_string) -> std::string
         return json::codepoint_to_utf8(final_codepoint);
     }
 
-
     return json::codepoint_to_utf8(codepoint1);
 }
 
-auto json::hexstring_to_int(std::string hex_string) -> int {
+auto json::hexstring_to_int(std::string hex_string) -> int
+{
     int codepoint = 0;
 
     for (auto i = hex_string.begin(); i < hex_string.begin() + 4; i++) {
         codepoint *= 16;
 
         switch (*i) {
-        case '0': codepoint += 0; break;
-        case '1': codepoint += 1; break;
-        case '2': codepoint += 2; break;
-        case '3': codepoint += 3; break;
-        case '4': codepoint += 4; break;
-        case '5': codepoint += 5; break;
-        case '6': codepoint += 6; break;
-        case '7': codepoint += 7; break;
-        case '8': codepoint += 8; break;
-        case '9': codepoint += 9; break;
+        case '0':
+            codepoint += 0;
+            break;
+        case '1':
+            codepoint += 1;
+            break;
+        case '2':
+            codepoint += 2;
+            break;
+        case '3':
+            codepoint += 3;
+            break;
+        case '4':
+            codepoint += 4;
+            break;
+        case '5':
+            codepoint += 5;
+            break;
+        case '6':
+            codepoint += 6;
+            break;
+        case '7':
+            codepoint += 7;
+            break;
+        case '8':
+            codepoint += 8;
+            break;
+        case '9':
+            codepoint += 9;
+            break;
 
         case 'a':
         case 'A':
-            codepoint += 10; break;
+            codepoint += 10;
+            break;
 
         case 'b':
         case 'B':
-            codepoint += 11; break;
+            codepoint += 11;
+            break;
 
         case 'c':
         case 'C':
-            codepoint += 12; break;
+            codepoint += 12;
+            break;
 
         case 'd':
         case 'D':
-            codepoint += 13; break;
+            codepoint += 13;
+            break;
 
         case 'e':
         case 'E':
-            codepoint += 14; break;
+            codepoint += 14;
+            break;
 
         case 'f':
         case 'F':
-            codepoint += 15; break;
+            codepoint += 15;
+            break;
 
         default:
             throw std::runtime_error("invalid character");
@@ -438,7 +453,7 @@ auto json::parse_integer(std::string s) -> bool
 
     int i = 0;
 
-    //can have plus or minus at start
+    // can have plus or minus at start
     if (s[0] == '+' || s[0] == '-') {
         integer.push_back(s[0]);
 
@@ -469,15 +484,13 @@ auto json::parse_integer(std::string s) -> bool
         case '.':
             if (canReadFraction) {
                 integer.push_back(c);
-            }
-            else {
+            } else {
                 return false;
             }
 
             break;
 
-        case 'e':
-        {
+        case 'e': {
             if (s.length() - (i + 1) == 0) {
                 return false;
             }
@@ -492,7 +505,7 @@ auto json::parse_integer(std::string s) -> bool
                 }
             }
 
-            //exponent cannot be a float
+            // exponent cannot be a float
             canReadFraction = false;
 
             break;
@@ -503,7 +516,7 @@ auto json::parse_integer(std::string s) -> bool
         }
     }
 
-    //check for overflow using stringstream
+    // check for overflow using stringstream
     std::stringstream stream(integer);
     double res;
 
@@ -511,11 +524,11 @@ auto json::parse_integer(std::string s) -> bool
         return false;
     }
 
-
     return true;
 }
 
-std::string json::codepoint_to_utf8(int codepoint) {
+std::string json::codepoint_to_utf8(int codepoint)
+{
     std::string s;
 
     if (codepoint <= 0x7F) {
@@ -524,16 +537,14 @@ std::string json::codepoint_to_utf8(int codepoint) {
         s.resize(1);
 
         s[0] = (char)codepoint;
-    }
-    else if (codepoint <= 0x07FF) {
+    } else if (codepoint <= 0x07FF) {
         // 2-byte unicode
 
         s.resize(2);
 
         s[0] = (char)(((codepoint >> 6) & 0x1F) | 0xC0);
         s[1] = (char)(((codepoint >> 0) & 0x3F) | 0x80);
-    }
-    else if (codepoint <= 0xFFFF) {
+    } else if (codepoint <= 0xFFFF) {
         // 3-byte unicode
 
         s.resize(3);
@@ -541,8 +552,7 @@ std::string json::codepoint_to_utf8(int codepoint) {
         s[1] = (char)(((codepoint >> 6) & 0x3F) | 0x80);
         s[2] = (char)(((codepoint >> 0) & 0x3F) | 0x80);
 
-    }
-    else if (codepoint <= 0x10FFFF) {
+    } else if (codepoint <= 0x10FFFF) {
         // 4-byte unicode
 
         s.resize(4);
@@ -555,44 +565,33 @@ std::string json::codepoint_to_utf8(int codepoint) {
     return s;
 }
 
-bool json::is_alpha (const unsigned char c) {
+bool json::is_alpha(const unsigned char c)
+{
     if (c >= 97 && c <= 122) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
-
 }
 
-bool json::is_numeric (const unsigned char c) {
+bool json::is_numeric(const unsigned char c)
+{
     if ((c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.' || c == 'e' || c == 'E') {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
 
 json::Error::Error(int l, int c, std::string s)
-    :m_line(l)
-    ,m_column(c)
-    ,m_error_msg(s)
+    : m_line(l)
+    , m_column(c)
+    , m_error_msg(s)
 {
-
 }
 
-const char* json::Error::what() const throw()
-{
-    return m_error_msg.c_str();
-}
+const char* json::Error::what() const throw() { return m_error_msg.c_str(); }
 
-int json::Error::line()
-{
-    return m_line;
-}
+int json::Error::line() { return m_line; }
 
-auto json::Error::column() -> int
-{
-    return m_column;
-}
+auto json::Error::column() -> int { return m_column; }
