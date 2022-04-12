@@ -111,6 +111,10 @@ json::value json::json_parser::load_value(){
         return json::value(false);
         break;
 
+    case json::token_type::null:
+        return json::value(nullptr);
+        break;
+
     case json::token_type::square_bracket_open:
         return json::value(load_array());
         break;
