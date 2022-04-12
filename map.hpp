@@ -6,12 +6,12 @@
 #include <vector>
 
 namespace json {
-class value;
+class Value;
 
-using value_type = std::variant<float, bool, std::nullptr_t, std::string, std::vector<value>,
-    std::map<std::string, value>>;
+using value_type = std::variant<float, bool, std::nullptr_t, std::string, std::vector<Value>,
+    std::map<std::string, Value>>;
 
-class value : public json::value_type {
+class Value : public json::value_type {
 public:
     using json::value_type::value_type;
     using json::value_type::operator=;

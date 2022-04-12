@@ -1,132 +1,132 @@
 #include "parse.hpp"
 
-json::value json::json_parser::parse(std::vector<json::Token> t)
+json::Value json::JsonParser::parse(std::vector<json::Token> t)
 {
-    tokenList = t;
-    index = tokenList.begin();
-    json::value obj;
+    m_tokenList = t;
+    m_index = m_tokenList.begin();
+    json::Value obj;
 
-    if (tokenList[0].type == token_type::curly_bracket_open) {
+    if (m_tokenList[0].type == token_type::curly_bracket_open) {
         obj = load_object();
-    } else if (tokenList[0].type == token_type::square_bracket_open) {
+    } else if (m_tokenList[0].type == token_type::square_bracket_open) {
         obj = load_array();
     }
 
     return obj;
 }
 
-json::value json::json_parser::load_object()
+json::Value json::JsonParser::load_object()
 {
-    std::map<std::string, json::value> obj;
+    std::map<std::string, json::Value> obj;
 
-    index++;
+    m_index++;
 
     // checking for empty object
-    if (index->type == json::token_type::curly_bracket_close) {
-        return json::value(obj);
+    if (m_index->type == json::token_type::curly_bracket_close) {
+        return json::Value(obj);
     }
 
     while (true) {
-        if (index->type != json::token_type::string) {
-            std::cerr << "invalid value inside object " << index->valueAsString()
+        if (m_index->type != json::token_type::string) {
+            std::cerr << "invalid value inside object " << m_index->valueAsString()
                       << " expected string value"
                       << "\n";
             throw std::runtime_error("encountered error");
         }
 
-        if ((++index)->type != json::token_type::colen) {
-            std::cerr << "expected colen after " << std::prev(index)->valueAsString()
+        if ((++m_index)->type != json::token_type::colen) {
+            std::cerr << "expected colen after " << std::prev(m_index)->valueAsString()
                       << "\n";
             throw std::runtime_error("encountered error");
         }
 
-        auto item = std::prev(index)->value;
+        auto item = std::prev(m_index)->value;
         std::string& key = std::get<std::string>(item);
 
-        index++;
+        m_index++;
 
-        json::value value = load_value();
+        json::Value value = load_value();
         obj.insert({ key, value });
 
-        index++;
+        m_index++;
 
-        switch (index->type) {
+        switch (m_index->type) {
         case json::token_type::comma:
-            index++;
+            m_index++;
             continue;
 
         case json::token_type::curly_bracket_close:
-            return json::value(obj);
+            return json::Value(obj);
 
         default:
-            std::cerr << "unexpected value inside object " << index->valueAsString()
+            std::cerr << "unexpected value inside object " << m_index->valueAsString()
                       << "\n";
             throw std::runtime_error("encountered error");
         }
     }
 
-    return json::value(obj);
+    return json::Value(obj);
 }
 
-json::value json::json_parser::load_array()
+json::Value json::JsonParser::load_array()
 {
-    std::vector<json::value> list;
+    std::vector<json::Value> list;
 
-    index++;
+    m_index++;
 
     // checking for empty array
-    if (index->type == json::token_type::square_bracket_close) {
-        return json::value(list);
+    if (m_index->type == json::token_type::square_bracket_close) {
+        return json::Value(list);
     }
 
     while (true) {
         list.push_back(std::move(load_value()));
 
-        switch ((++index)->type) {
+        switch ((++m_index)->type) {
         case json::token_type::comma:
-            index++;
+            m_index++;
             continue;
 
         case json::token_type::square_bracket_close:
             return list;
 
         default:
-            std::cerr << "unexpected value inside array " << index->valueAsString()
+            std::cerr << "unexpected value inside array " << m_index->valueAsString()
                       << "\n";
             throw std::runtime_error("encountered error");
         }
     }
 }
 
-json::value json::json_parser::load_value()
+json::Value json::JsonParser::load_value()
 {
-    switch (index->type) {
+    switch (m_index->type) {
     case json::token_type::string:
-        return json::value(index->valueAsString());
+        return json::Value(m_index->valueAsString());
         break;
 
     case json::token_type::true_value:
-        return json::value(true);
+        return json::Value(true);
         break;
 
     case json::token_type::false_value:
-        return json::value(false);
+        return json::Value(false);
         break;
 
     case json::token_type::null:
-        return json::value(nullptr);
+        return json::Value(nullptr);
         break;
 
     case json::token_type::square_bracket_open:
-        return json::value(load_array());
+        return json::Value(load_array());
         break;
 
     case json::token_type::number:
-        return json::value(std::get<float>(index->value));
+        return json::Value(std::get<float>(m_index->value));
         break;
 
     case json::token_type::curly_bracket_open:
-        return json::value(load_object());
+        return json::Value(load_object());
         break;
 
     default:

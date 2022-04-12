@@ -7,18 +7,18 @@
 #include "map.hpp"
 
 namespace json {
-class json_parser {
+class JsonParser {
 public:
-    json_parser() = default;
+    JsonParser() = default;
 
-    json::value parse(std::vector<json::Token>);
-    json::value load_object();
-    json::value load_array();
-    json::value load_value();
+    json::Value parse(std::vector<json::Token>);
+    json::Value load_object();
+    json::Value load_array();
+    json::Value load_value();
 
 private:
-    std::vector<json::Token> tokenList;
-    std::vector<json::Token>::iterator index;
+    std::vector<json::Token> m_tokenList;
+    std::vector<json::Token>::iterator m_index;
 };
 
 } // namespace json
