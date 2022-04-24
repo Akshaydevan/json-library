@@ -12,6 +12,7 @@ add_library (libjson STATIC
              parse.cpp
              parse.hpp
              map.hpp
+             map.cpp
              json.cpp
              include/libjson/json.hpp
             )
