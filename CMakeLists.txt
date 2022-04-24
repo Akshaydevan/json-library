@@ -7,12 +7,12 @@ set (CMAKE_CXX_EXTENSIONS OFF)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library (libjson STATIC
-             lex.cpp
-             lex.hpp
-             parse.cpp
-             parse.hpp
-             map.hpp
-             map.cpp
-             json.cpp
+             src/lex.cpp
+             include/libjson/lex.hpp
+             src/parse.cpp
+             include/libjson/parse.hpp
+             src/map.cpp
+             include/libjson/map.hpp
+             src/json.cpp
              include/libjson/json.hpp
             )

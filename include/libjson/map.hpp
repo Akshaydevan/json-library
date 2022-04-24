@@ -16,8 +16,8 @@ public:
     using json::value_type::value_type;
     using json::value_type::operator=;
 
-    json::Value operator[] (std::string);
-    json::Value operator[] (int);
+    json::Value operator[](std::string);
+    json::Value operator[](int);
 
     std::string asString();
     bool asBool();

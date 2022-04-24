@@ -1,12 +1,14 @@
-#include "map.hpp"
+#include "../include/libjson/map.hpp"
 
-json::Value json::Value::operator[] (std::string key) {
+json::Value json::Value::operator[](std::string key)
+{
     auto map = std::get<std::map<std::string, Value>>(*this);
 
     return map[key];
 }
 
-json::Value json::Value::operator[] (int index) {
+json::Value json::Value::operator[](int index)
+{
     auto list = std::get<std::vector<Value>>(*this);
 
     return list[index];
@@ -20,7 +22,6 @@ std::string json::Value::asString()
 bool json::Value::asBool()
 {
     return std::get<bool>(*this);
-
 }
 
 float json::Value::asNum()

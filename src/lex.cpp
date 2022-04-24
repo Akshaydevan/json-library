@@ -1,4 +1,4 @@
-#include "lex.hpp"
+#include "../include/libjson/lex.hpp"
 
 json::CharStream::CharStream(std::string s)
     : m_text_buffer(s)
