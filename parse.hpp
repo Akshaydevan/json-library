@@ -12,6 +12,8 @@ public:
     JsonParser() = default;
 
     json::Value parse(std::vector<json::Token>);
+
+private:
     json::Value load_object();
     json::Value load_array();
     json::Value load_value();
