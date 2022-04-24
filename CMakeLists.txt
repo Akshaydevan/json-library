@@ -6,9 +6,15 @@ set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_EXTENSIONS OFF)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB PROJECT_SOURCE_FILES *.cpp *.hpp)
-
-add_library (libjson STATIC ${PROJECT_SOURCE_FILES})
+add_library (libjson STATIC
+             lex.cpp
+             lex.hpp
+             parse.cpp
+             parse.hpp
+             map.hpp
+             json.cpp
+             json.hpp
+            )
 
 target_include_directories (libjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_directories (libjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
