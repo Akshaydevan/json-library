@@ -13,8 +13,5 @@ add_library (libjson STATIC
              parse.hpp
              map.hpp
              json.cpp
-             json.hpp
+             include/libjson/json.hpp
             )
-
-target_include_directories (libjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_directories (libjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
