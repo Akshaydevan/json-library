@@ -324,7 +324,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
                 number.push_back(m_stream.next());
             }
 
-            if (number[0] == '0') {
+            if (number[0] == '0' && number.size() > 1) {
                 throw Error(m_stream.line(), m_stream.column(), "number cannot have leading zero");
             }
 
