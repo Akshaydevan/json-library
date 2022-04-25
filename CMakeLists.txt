@@ -16,3 +16,9 @@ add_library (libjson STATIC
              src/json.cpp
              include/libjson/json.hpp
             )
+
+if(BUILD_TESTING)
+    enable_testing()
+    file(COPY "tests/json files/" DESTINATION "${CMAKE_BINARY_DIR}/libjson/tests/json files/")
+    add_subdirectory(tests)
+endif()
