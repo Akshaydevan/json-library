@@ -126,27 +126,27 @@ std::vector<json::Token> json::Lexer::make_tokens()
 
         switch (m_stream.next()) {
         case '{':
-            m_tokens.push_back(Token { "{", json::token_type::curly_bracket_open });
+            m_tokens.push_back(Token { "{", json::token_type::curly_bracket_open, currentline, currentColumn});
             break;
 
         case '}':
-            m_tokens.push_back(Token { "}", json::token_type::curly_bracket_close });
+            m_tokens.push_back(Token { "}", json::token_type::curly_bracket_close, currentline, currentColumn });
             break;
 
         case '[':
-            m_tokens.push_back(Token { "[", json::token_type::square_bracket_open });
+            m_tokens.push_back(Token { "[", json::token_type::square_bracket_open, currentline, currentColumn });
             break;
 
         case ']':
-            m_tokens.push_back(Token { "]", json::token_type::square_bracket_close });
+            m_tokens.push_back(Token { "]", json::token_type::square_bracket_close, currentline, currentColumn });
             break;
 
         case ',':
-            m_tokens.push_back(Token { ",", json::token_type::comma });
+            m_tokens.push_back(Token { ",", json::token_type::comma, currentline, currentColumn });
             break;
 
         case ':':
-            m_tokens.push_back(Token { ":", json::token_type::colen });
+            m_tokens.push_back(Token { ":", json::token_type::colen, currentline, currentColumn });
             break;
 
         case '"': {
@@ -221,7 +221,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
                 }
             }
 
-            m_tokens.push_back(Token { encoded_buffer, json::token_type::string });
+            m_tokens.push_back(Token { encoded_buffer, json::token_type::string, currentline, currentColumn });
             break;
         }
 
@@ -235,7 +235,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
             }
 
             if (buffer == "true") {
-                m_tokens.push_back(Token { buffer, json::token_type::true_value });
+                m_tokens.push_back(Token { buffer, json::token_type::true_value, currentline, currentColumn });
             } else {
                 throw Error(m_stream.line(), m_stream.column(),
                     "unexpected character sequence " + buffer);
@@ -255,7 +255,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
             }
 
             if (buffer == "false") {
-                m_tokens.push_back(Token { buffer, json::token_type::false_value });
+                m_tokens.push_back(Token { buffer, json::token_type::false_value, currentline, currentColumn });
             } else {
                 throw Error(m_stream.line(), m_stream.column(),
                     "unexpected character sequence " + buffer);
@@ -276,7 +276,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
             }
 
             if (buffer == "null") {
-                m_tokens.push_back(Token { buffer, json::token_type::null });
+                m_tokens.push_back(Token { buffer, json::token_type::null, currentline, currentColumn });
             } else {
                 throw Error(m_stream.line(), m_stream.column(),
                     "unexpected character sequence " + buffer);
@@ -311,7 +311,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
                 float num;
                 stream >> num;
 
-                m_tokens.push_back(Token { num, json::token_type::number });
+                m_tokens.push_back(Token { num, json::token_type::number, currentline, currentColumn });
             } else {
                 throw Error(m_stream.line(), m_stream.column(), "invalid number");
             }
@@ -334,10 +334,6 @@ std::vector<json::Token> json::Lexer::make_tokens()
             return m_tokens;
         }
         }
-
-        auto& last = *(m_tokens.end() - 1);
-        last.line = currentline;
-        last.column = currentColumn;
     }
 
     return m_tokens;
