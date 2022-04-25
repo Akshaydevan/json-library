@@ -10,6 +10,8 @@ json::Value json::JsonParser::parse(std::vector<json::Token> t)
         obj = load_object();
     } else if (m_tokenList[0].type == token_type::square_bracket_open) {
         obj = load_array();
+    } else {
+        throw std::runtime_error("contain neither object nor array");
     }
 
     return obj;

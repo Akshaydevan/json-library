@@ -1,8 +1,9 @@
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <libjson/json.hpp>
-#include <filesystem>
 
-std::string read_file(const std::string &fileName){
+std::string read_file(const std::string& fileName)
+{
     std::fstream file(fileName);
 
     if (!file.is_open()) {
@@ -25,10 +26,11 @@ std::string read_file(const std::string &fileName){
     return buffer;
 }
 
-TEST (test, json_test) {
+TEST(test, json_test)
+{
     std::string tests_directory = "json files/";
 
-    for(const auto &file : std::filesystem::directory_iterator(tests_directory)) {
+    for (const auto& file : std::filesystem::directory_iterator(tests_directory)) {
         std::string file_name = file.path().string().substr(file.path().string().find_last_of("/") + 1);
         std::string text = read_file(file.path().string());
 
@@ -36,8 +38,7 @@ TEST (test, json_test) {
             EXPECT_NO_THROW({
                 auto json = js::read(text);
             });
-        }
-        else {
+        } else {
             EXPECT_ANY_THROW({
                 auto json = js::read(text);
             });
