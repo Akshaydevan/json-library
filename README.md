@@ -1,10 +1,7 @@
 # Json library
----
 ##### a simple and basic json library written in c++
-#
-#
+
 ## Example
----
 ```
 #include <libjson/json.hpp>
 
@@ -19,10 +16,8 @@ int main() {
     return 0;
 }
 ```
-#
-#
+
 ## BUILD
----
 After cloning this repository add this to your cmake
 
 ```
