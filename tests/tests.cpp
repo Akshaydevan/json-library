@@ -37,11 +37,11 @@ TEST(test, json_test)
         if (file_name.find("pass") != std::string::npos) {
             EXPECT_NO_THROW({
                 auto json = js::read(text);
-            });
+            }) << file_name;
         } else {
             EXPECT_ANY_THROW({
                 auto json = js::read(text);
-            });
+            }) << file_name;
         }
     }
 }
