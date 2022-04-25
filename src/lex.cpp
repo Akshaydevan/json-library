@@ -337,6 +337,7 @@ std::vector<json::Token> json::Lexer::make_tokens()
         }
     }
 
+    m_tokens.push_back(Token{.type = json::token_type::end_of_file});
     return m_tokens;
 }
 
