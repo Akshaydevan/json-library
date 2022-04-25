@@ -25,7 +25,7 @@ add_subdirectory (path_to_cloned_repository)
 ...
 
 target_include_directories(TARGET PUBLIC path_to_cloned_repository/include)
-target_link_libraries (json libjson)
+target_link_libraries (TARGET libjson)
 ```
 ## License
 
