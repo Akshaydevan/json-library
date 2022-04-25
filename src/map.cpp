@@ -4,14 +4,14 @@ json::Value json::Value::operator[](std::string key)
 {
     auto map = std::get<std::map<std::string, Value>>(*this);
 
-    return map[key];
+    return map.at(key);
 }
 
 json::Value json::Value::operator[](int index)
 {
     auto list = std::get<std::vector<Value>>(*this);
 
-    return list[index];
+    return list.at(index);
 }
 
 std::string json::Value::asString()
