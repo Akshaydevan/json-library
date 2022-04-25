@@ -297,7 +297,8 @@ std::vector<json::Token> json::Lexer::make_tokens()
         case '8':
         case '9':
         case '0':
-        case '.': {
+        case '.':
+        case '-': {
             std::string number;
 
             number += m_stream.current();
