@@ -8,8 +8,16 @@ json::Value json::JsonParser::parse(std::vector<json::Token> t)
 
     if (m_tokenList[0].type == token_type::curly_bracket_open) {
         obj = load_object();
+
+        if(std::next(m_index)->type != json::token_type::end_of_file){
+            throw std::runtime_error("expected end of file");
+        }
     } else if (m_tokenList[0].type == token_type::square_bracket_open) {
         obj = load_array();
+
+        if(std::next(m_index)->type != json::token_type::end_of_file){
+            throw std::runtime_error("expected end of file");
+        }
     } else {
         throw std::runtime_error("contain neither object nor array");
     }
