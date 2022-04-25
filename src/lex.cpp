@@ -166,6 +166,19 @@ std::vector<json::Token> json::Lexer::make_tokens()
                     continue;
                 }
 
+                //check if any characted that should not be escaped is escaped
+                if (c == '\\') {
+                    const unsigned char c = m_stream.peek();
+
+                    if (c != '\"' &&  c != '\\' && c != '/' && c != 'b' &&
+                        c != 'f'  &&  c != 'n'  && c != 'r' && c != 't' &&
+                        c != 'u'
+                        )
+                    {
+                        throw Error(m_stream.line(), m_stream.column(), "invalid character escaped");
+                    }
+                }
+
                 if (c == '"') {
                     break;
                 }
@@ -305,6 +318,10 @@ std::vector<json::Token> json::Lexer::make_tokens()
 
             while (!m_stream.is_end() && json::is_numeric(m_stream.peek())) {
                 number.push_back(m_stream.next());
+            }
+
+            if (number[0] == '0') {
+                throw Error(m_stream.line(), m_stream.column(), "number cannot have leading zero");
             }
 
             if (parse_integer(number)) {
