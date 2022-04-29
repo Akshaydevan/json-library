@@ -6,6 +6,8 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_EXTENSIONS OFF)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
+file(COPY "json files/" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/json files/")
+
 include(FetchContent)
 FetchContent_Declare(
   googletest

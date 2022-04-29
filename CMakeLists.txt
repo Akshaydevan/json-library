@@ -19,6 +19,5 @@ add_library (libjson STATIC
 
 if(BUILD_TESTING)
     enable_testing()
-    file(COPY "tests/json files/" DESTINATION "${CMAKE_BINARY_DIR}/libjson/tests/json files/")
     add_subdirectory(tests)
 endif()
