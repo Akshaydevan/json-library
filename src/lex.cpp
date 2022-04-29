@@ -509,6 +509,7 @@ auto json::parse_integer(std::string s) -> bool
 
             break;
 
+        case 'E':
         case 'e': {
             if (s.length() - (i + 1) == 0) {
                 return false;
